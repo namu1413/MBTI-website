@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DevMBTI - 개발자 성격 유형 테스트</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --card: #1a1a24;
+      --accent: #00ff88;
+      --accent2: #7c3aed;
+      --accent3: #f59e0b;
+      --text: #e8e8f0;
+      --muted: #6b7280;
+      --border: #2a2a3a;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans KR', sans-serif;
+      overflow-x: hidden;
+    }
+    .mono { font-family: 'Space Mono', monospace; }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      background: rgba(10,10,15,0.85) !important;
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+      position: sticky; top: 0; z-index: 1000;
+    }
+    .navbar-brand {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.4rem;
+      color: var(--accent) !important;
+      letter-spacing: -1px;
+    }
+    .navbar-brand span { color: var(--text); }
+    .nav-link {
+      color: var(--muted) !important;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color .2s;
+      position: relative;
+      padding: 0.4rem 0.9rem !important;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute; bottom: -2px; left: 50%; right: 50%;
+      height: 2px; background: var(--accent);
+      transition: left .2s, right .2s;
+    }
+    .nav-link:hover { color: var(--accent) !important; }
+    .nav-link:hover::after { left: 0.9rem; right: 0.9rem; }
+    .nav-cta {
+      background: var(--accent) !important;
+      color: #000 !important;
+      border-radius: 6px !important;
+      font-weight: 700 !important;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem !important;
+      padding: 0.5rem 1.2rem !important;
+      transition: transform .15s, box-shadow .15s !important;
+    }
+    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 0 20px rgba(0,255,136,.3) !important; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+      padding: 6rem 1rem;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,58,237,.18) 0%, transparent 70%),
+                  radial-gradient(ellipse 50% 40% at 80% 80%, rgba(0,255,136,.08) 0%, transparent 60%);
+    }
+    .grid-lines {
+      position: absolute; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridShift 20s linear infinite;
+    }
+    @keyframes gridShift { from { transform: translateY(0); } to { transform: translateY(60px); } }
+    .hero-content { position: relative; z-index: 1; text-align: center; max-width: 800px; }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(0,255,136,.1);
+      border: 1px solid rgba(0,255,136,.3);
+      color: var(--accent);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      padding: 0.35rem 1rem;
+      border-radius: 100px;
+      margin-bottom: 2rem;
+      animation: fadeDown .6s ease both;
+    }
+    .hero h1 {
+      font-size: clamp(2.8rem, 8vw, 5.5rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin-bottom: 1.5rem;
+      animation: fadeDown .7s .1s ease both;
+    }
+    .hero h1 .hl { color: var(--accent); }
+    .hero h1 .hl2 { color: var(--accent2); }
+    .hero-desc {
+      font-size: 1.1rem;
+      color: var(--muted);
+      margin-bottom: 3rem;
+      line-height: 1.8;
+      animation: fadeDown .7s .2s ease both;
+    }
+    .hero-btns { animation: fadeDown .7s .3s ease both; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-primary-custom {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 1rem 2.5rem;
+      font-weight: 700;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      text-decoration: none;
+    }
+    .btn-primary-custom:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,255,136,.35); color: #000; }
+    .btn-outline-custom {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 1rem 2.5rem;
+      font-weight: 500;
+      font-size: 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+      text-decoration: none;
+    }
+    .btn-outline-custom:hover { border-color: var(--accent); color: var(--accent); }
+
+    .hero-stats {
+      display: flex; gap: 3rem; justify-content: center; flex-wrap: wrap;
+      margin-top: 4rem;
+      animation: fadeUp .7s .5s ease both;
+    }
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 2rem; font-weight: 700;
+      color: var(--accent);
+    }
+    .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: .2rem; }
+
+    @keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:none; } }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+
+    /* ── SECTION COMMON ── */
+    section { padding: 6rem 0; }
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: .8rem;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 1rem;
+    }
+    .section-desc { color: var(--muted); font-size: 1rem; line-height: 1.8; }
+
+    /* ── TYPES PREVIEW ── */
+    .types-section { background: var(--surface); }
+    .type-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.8rem;
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+      cursor: default;
+      height: 100%;
+    }
+    .type-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 30px rgba(0,255,136,.1);
+    }
+    .type-emoji { font-size: 2.2rem; margin-bottom: 1rem; }
+    .type-code {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--accent);
+      margin-bottom: .4rem;
+    }
+    .type-name { font-size: 1rem; font-weight: 700; margin-bottom: .6rem; }
+    .type-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── TEST SECTION ── */
+    .test-section { background: var(--bg); }
+    .question-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      max-width: 700px; margin: 0 auto;
+    }
+    .q-progress {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem; color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .progress-bar-custom {
+      height: 4px; background: var(--border); border-radius: 100px;
+      margin-bottom: 2rem;
+    }
+    .progress-fill {
+      height: 100%; background: var(--accent); border-radius: 100px;
+      transition: width .4s ease;
+    }
+    .q-text {
+      font-size: 1.15rem; font-weight: 700;
+      line-height: 1.7; margin-bottom: 2rem;
+    }
+    .q-option {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.4rem;
+      margin-bottom: .8rem;
+      cursor: pointer;
+      font-size: 0.92rem;
+      transition: border-color .2s, background .2s, transform .1s;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .q-option:hover { border-color: var(--accent); background: rgba(0,255,136,.05); transform: translateX(4px); }
+    .q-option.selected { border-color: var(--accent); background: rgba(0,255,136,.1); }
+    .opt-key {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem; color: var(--accent);
+      background: rgba(0,255,136,.1);
+      border-radius: 4px; padding: 0.2rem 0.5rem;
+      min-width: 28px; text-align: center;
+    }
+    .q-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; }
+
+    /* ── RESULT SECTION ── */
+    #result-section { display: none; background: var(--surface); }
+    .result-card {
+      background: var(--card);
+      border: 1px solid var(--accent);
+      border-radius: 20px;
+      padding: 3rem;
+      max-width: 700px; margin: 0 auto;
+      box-shadow: 0 0 60px rgba(0,255,136,.08);
+      text-align: center;
+    }
+    .result-type {
+      font-family: 'Space Mono', monospace;
+      font-size: 3.5rem; font-weight: 700;
+      color: var(--accent);
+      margin: 1rem 0;
+    }
+    .result-name { font-size: 1.5rem; font-weight: 900; margin-bottom: 1rem; }
+    .result-desc { color: var(--muted); line-height: 1.8; margin-bottom: 2rem; font-size: 0.95rem; }
+    .trait-list { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; margin-bottom: 2rem; }
+    .trait-tag {
+      background: rgba(0,255,136,.1);
+      border: 1px solid rgba(0,255,136,.2);
+      color: var(--accent);
+      border-radius: 100px;
+      padding: .3rem .9rem;
+      font-size: 0.8rem;
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* ── CONTENT CARDS ── */
+    .content-section { background: var(--surface); }
+    .content-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+      height: 100%;
+    }
+    .content-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,.3); }
+    .content-thumb {
+      height: 160px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3.5rem;
+    }
+    .thumb-1 { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+    .thumb-2 { background: linear-gradient(135deg, #1a0a2e, #2d1b69); }
+    .thumb-3 { background: linear-gradient(135deg, #0a2e1a, #1a4a2e); }
+    .thumb-4 { background: linear-gradient(135deg, #2e1a0a, #4a2e1a); }
+    .content-body { padding: 1.4rem; }
+    .content-cat {
+      font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 2px;
+      color: var(--accent); margin-bottom: .5rem;
+      font-family: 'Space Mono', monospace;
+    }
+    .content-title { font-size: 1rem; font-weight: 700; margin-bottom: .5rem; line-height: 1.4; }
+    .content-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── AUTH MODAL ── */
+    .modal-content {
+      background: var(--card) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 16px !important;
+    }
+    .modal-header { border-bottom: 1px solid var(--border) !important; }
+    .modal-title { font-family: 'Space Mono', monospace; color: var(--accent) !important; }
+    .btn-close { filter: invert(1); }
+    .form-control {
+      background: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+      color: var(--text) !important;
+      border-radius: 8px !important;
+    }
+    .form-control:focus {
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 0 3px rgba(0,255,136,.1) !important;
+    }
+    .form-label { font-size: 0.85rem; color: var(--muted); }
+    .tab-pills { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+    .tab-pill {
+      flex: 1; padding: .6rem; text-align: center;
+      border-radius: 8px; cursor: pointer;
+      font-size: 0.85rem; font-weight: 600;
+      border: 1px solid var(--border);
+      background: transparent; color: var(--muted);
+      transition: all .2s;
+    }
+    .tab-pill.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 3rem 0 2rem;
+    }
+    .footer-brand {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.3rem; color: var(--accent);
+      margin-bottom: .5rem;
+    }
+    .footer-desc { font-size: 0.82rem; color: var(--muted); }
+    .footer-link {
+      color: var(--muted); font-size: 0.85rem;
+      text-decoration: none; display: block;
+      margin-bottom: .5rem; transition: color .2s;
+    }
+    .footer-link:hover { color: var(--accent); }
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding-top: 1.5rem; margin-top: 2rem;
+      font-size: 0.78rem; color: var(--muted);
+      text-align: center;
+    }
+
+    /* ── UTILITY ── */
+    .divider { height: 1px; background: var(--border); margin: 0; }
+    .floating-code {
+      position: absolute;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: rgba(0,255,136,.12);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    /* scroll reveal */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+
+<!-- ───────────── NAVBAR ───────────── -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand mono" href="#">Dev<span>MBTI</span></a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon" style="filter:invert(1)"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+        <li class="nav-item"><a class="nav-link" href="#test-section">개발 MBTI 테스트</a></li>
+        <li class="nav-item"><a class="nav-link" href="#types-section">유형 보기</a></li>
+        <li class="nav-item"><a class="nav-link" href="#content-section">콘텐츠</a></li>
+        <li class="nav-item ms-2">
+          <a class="nav-link nav-cta" href="#" data-bs-toggle="modal" data-bs-target="#authModal">회원가입 / 로그인</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ───────────── HERO ───────────── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="grid-lines"></div>
+
+  <!-- floating code snippets -->
+  <span class="floating-code" style="top:15%;left:5%;transform:rotate(-8deg)">if (coffee == null) throw new Error();</span>
+  <span class="floating-code" style="top:70%;left:3%;transform:rotate(5deg)">git commit -m "fix: 드디어됨"</span>
+  <span class="floating-code" style="top:20%;right:4%;transform:rotate(6deg)">// TODO: 나중에 고치자</span>
+  <span class="floating-code" style="top:75%;right:5%;transform:rotate(-4deg)">console.log("여기까지옴")</span>
+
+  <div class="hero-content">
+    <div class="hero-badge">🧬 개발자 성격 유형 검사 v2.0</div>
+    <h1>
+      나는 어떤<br/>
+      <span class="hl">개발자</span><span class="hl2">일까?</span>
+    </h1>
+    <p class="hero-desc">
+      버그를 만났을 때, 코드리뷰를 받을 때, 야근할 때…<br/>
+      현실 개발 상황 20문항으로 알아보는 나의 개발 성격 유형
+    </p>
+    <div class="hero-btns">
+      <a href="#test-section" class="btn-primary-custom">지금 바로 테스트 →</a>
+      <a href="#types-section" class="btn-outline-custom">16가지 유형 보기</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">16</div>
+        <div class="stat-label">개발자 유형</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">20</div>
+        <div class="stat-label">현실 질문</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">5분</div>
+        <div class="stat-label">소요 시간</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">무료</div>
+        <div class="stat-label">완전 무료</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── TYPES ───────────── -->
+<section class="types-section" id="types-section">
+  <div class="container">
+    <div class="row mb-5 reveal">
+      <div class="col-lg-6">
+        <div class="section-label">// DEV TYPES</div>
+        <h2 class="section-title">16가지 개발자 유형</h2>
+        <p class="section-desc">당신은 어떤 유형인가요? 테스트를 통해 정확한 유형을 알아보세요.</p>
+      </div>
+    </div>
+    <div class="row g-3">
+      <div class="col-6 col-md-4 col-lg-3 reveal">
+        <div class="type-card">
+          <div class="type-emoji">🏗️</div>
+          <div class="type-code">ARCH</div>
+          <div class="type-name">아키텍처 설계자</div>
+          <div class="type-desc">코드 짜기 전에 설계도부터 그리는 타입. 다이어그램 없으면 불안함.</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-3 reveal">
+        <div class="type-card">
+          <div class="type-emoji">🔥</div>
+          <div class="type-code">HACK</div>
+          <div class="type-name">핵앤슬래시 코더</div>
+          <div class="type-desc">일단 돌아가면 됨. 리팩토링? 나중에 할게. 항상 나중.</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-3 reveal">
+        <div class="type-card">
+          <div class="type-emoji">🔬</div>
+          <div class="type-code">PERF</div>
+          <div class="type-name">퍼포먼스 집착자</div>
+          <div class="type-desc">O(n²)을 O(n log n)으로 바꾸는 데 이틀. 실제 차이는 0.001초.</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-3 reveal">
+        <div class="type-card">
+          <div class="type-emoji">📚</div>
+          <div class="type-code">DOCS</div>
+          <div class="type-name">문서화 신봉자</div>
+          <div class="type-desc">코드보다 README가 더 긴 사람. 주석 없는 코드는 죄악.</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-3 reveal">
+        <div class="type-card">
+          <div class="type-emoji">🎨</div>
+          <div class="type-code">UI</div>
+          <div class="type-name">UI 퍼펙셔니스트</div>
+          <div class="type-desc">버튼이 1px 어긋나면 잠 못 잠. 디자이너보다 예민함.</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-3 reveal">
+        <div class="type-card">
+          <div class="type-emoji">🤖</div>
+          <div class="type-code">AUTO</div>
+          <div class="type-name">자동화 광신도</div>
+          <div class="type-desc">반복 작업 3번이면 스크립트 짬. 자동화 스크립트 만드는 데 3일.</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-3 reveal">
+        <div class="type-card">
+          <div class="type-emoji">🛡️</div>
+          <div class="type-code">SEC</div>
+          <div class="type-name">보안 편집증</div>
+          <div class="type-desc">모든 입력값은 공격. 모든 API는 취약점. 모두가 해커.</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-3 reveal">
+        <div class="type-card">
+          <div class="type-emoji">☁️</div>
+          <div class="type-code">DEVOPS</div>
+          <div class="type-name">인프라 구루</div>
+          <div class="type-desc">코드보다 yaml 파일이 많음. 쿠버네티스 없으면 불안.</div>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-4 reveal">
+      <a href="#test-section" class="btn-outline-custom">나의 유형 알아보기 →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── TEST ───────────── -->
+<section class="test-section" id="test-section">
+  <div class="container">
+    <div class="text-center mb-5 reveal">
+      <div class="section-label">// START TEST</div>
+      <h2 class="section-title">개발 MBTI 테스트</h2>
+      <p class="section-desc">실제 개발 상황에서 나라면 어떻게 할지 선택해보세요.</p>
+    </div>
+
+    <div id="quiz-container" class="reveal">
+      <div class="question-card">
+        <div class="q-progress mono" id="q-progress">Q1 / 10</div>
+        <div class="progress-bar-custom">
+          <div class="progress-fill" id="progress-fill" style="width:10%"></div>
+        </div>
+        <div class="q-text" id="q-text"></div>
+        <div id="q-options"></div>
+        <div class="q-nav">
+          <button class="btn-outline-custom" id="btn-prev" onclick="prevQ()" style="display:none">← 이전</button>
+          <span></span>
+          <button class="btn-primary-custom" id="btn-next" onclick="nextQ()" disabled>다음 →</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="result-section">
+      <div class="result-card reveal">
+        <div style="font-size:3rem" id="result-emoji">🔥</div>
+        <div class="result-type" id="result-type">HACK</div>
+        <div class="result-name" id="result-name">핵앤슬래시 코더</div>
+        <div class="result-desc" id="result-desc"></div>
+        <div class="trait-list" id="trait-list"></div>
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+          <button class="btn-primary-custom" onclick="shareResult()">결과 공유하기 📤</button>
+          <button class="btn-outline-custom" onclick="resetQuiz()">다시 테스트하기 🔄</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── CONTENT ───────────── -->
+<section class="content-section" id="content-section">
+  <div class="container">
+    <div class="row mb-5 reveal">
+      <div class="col-lg-6">
+        <div class="section-label">// FEATURED</div>
+        <h2 class="section-title">함께 즐기는 콘텐츠</h2>
+        <p class="section-desc">개발자라면 공감할 이야기들을 모았어요.</p>
+      </div>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-3 reveal">
+        <div class="content-card">
+          <div class="content-thumb thumb-1">🎓</div>
+          <div class="content-body">
+            <div class="content-cat">지금 개강시즌!</div>
+            <div class="content-title">대학생 개발 성격별 유형 정리</div>
+            <div class="content-desc">CS전공 대학생들의 개발 성향 분석. 당신의 팀원은 어떤 유형?</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3 reveal">
+        <div class="content-card">
+          <div class="content-thumb thumb-2">💼</div>
+          <div class="content-body">
+            <div class="content-cat">직장생활</div>
+            <div class="content-title">유형별 코드리뷰 받을 때 반응</div>
+            <div class="content-desc">"이 변수명이 뭐야"부터 "LGTM"까지. 각 유형의 리뷰 반응 모음.</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3 reveal">
+        <div class="content-card">
+          <div class="content-thumb thumb-3">🌙</div>
+          <div class="content-body">
+            <div class="content-cat">야근 특집</div>
+            <div class="content-title">밤 11시 버그 발생! 유형별 대처법</div>
+            <div class="content-desc">ARCH는 설계를 다시 짜고, HACK은 일단 주석처리. 당신은?</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3 reveal">
+        <div class="content-card">
+          <div class="content-thumb thumb-4">🤝</div>
+          <div class="content-body">
+            <div class="content-cat">팀워크</div>
+            <div class="content-title">궁합 최악인 개발자 유형 조합</div>
+            <div class="content-desc">DOCS와 HACK이 한 팀이면? 실제 개발팀 유형별 궁합 분석.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── FOOTER ───────────── -->
+<footer>
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="footer-brand">DevMBTI</div>
+        <p class="footer-desc">개발자를 위한 성격 유형 검사.<br/>현실 개발 상황 기반 20문항.</p>
+      </div>
+      <div class="col-6 col-lg-2">
+        <div class="section-label mb-3">테스트</div>
+        <a href="#test-section" class="footer-link">개발 MBTI 테스트</a>
+        <a href="#types-section" class="footer-link">유형 소개</a>
+        <a href="#" class="footer-link">결과 공유</a>
+      </div>
+      <div class="col-6 col-lg-2">
+        <div class="section-label mb-3">콘텐츠</div>
+        <a href="#content-section" class="footer-link">개강시즌 특집</a>
+        <a href="#content-section" class="footer-link">야근 특집</a>
+        <a href="#content-section" class="footer-link">팀워크 분석</a>
+      </div>
+      <div class="col-6 col-lg-2">
+        <div class="section-label mb-3">계정</div>
+        <a href="#" class="footer-link" data-bs-toggle="modal" data-bs-target="#authModal">회원가입</a>
+        <a href="#" class="footer-link" data-bs-toggle="modal" data-bs-target="#authModal">로그인</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2025 DevMBTI — 개발자를 위한 성격 유형 검사
+    </div>
+  </div>
+</footer>
+
+<!-- ───────────── AUTH MODAL ───────────── -->
+<div class="modal fade" id="authModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title mono">DevMBTI 계정</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="tab-pills">
+          <div class="tab-pill active" id="tab-login" onclick="switchTab('login')">로그인</div>
+          <div class="tab-pill" id="tab-signup" onclick="switchTab('signup')">회원가입</div>
+        </div>
+
+        <!-- LOGIN -->
+        <div id="form-login">
+          <div class="mb-3">
+            <label class="form-label">이메일</label>
+            <input type="email" class="form-control" placeholder="dev@example.com"/>
+          </div>
+          <div class="mb-4">
+            <label class="form-label">비밀번호</label>
+            <input type="password" class="form-control" placeholder="••••••••"/>
+          </div>
+          <button class="btn-primary-custom w-100" onclick="fakeLogin()">로그인</button>
+          <p class="text-center mt-3" style="font-size:.82rem;color:var(--muted)">계정이 없으신가요? <a href="#" onclick="switchTab('signup')" style="color:var(--accent)">회원가입</a></p>
+        </div>
+
+        <!-- SIGNUP -->
+        <div id="form-signup" style="display:none">
+          <div class="mb-3">
+            <label class="form-label">닉네임</label>
+            <input type="text" class="form-control" placeholder="코딩고수123"/>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">이메일</label>
+            <input type="email" class="form-control" placeholder="dev@example.com"/>
+          </div>
+          <div class="mb-4">
+            <label class="form-label">비밀번호</label>
+            <input type="password" class="form-control" placeholder="8자 이상"/>
+          </div>
+          <button class="btn-primary-custom w-100" onclick="fakeSignup()">회원가입</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ── QUIZ DATA ──
+const questions = [
+  {
+    text: "🐛 배포 직후 버그 제보가 들어왔다. 나의 첫 반응은?",
+    options: [
+      { text: "일단 로그부터 열어본다. 차분하게.", axis: "I" },
+      { text: "슬랙에 바로 공유한다. 팀이 알아야지.", axis: "E" },
+      { text: "내가 짠 코드 다시 훑어본다.", axis: "T" },
+      { text: "사용자가 얼마나 불편할지 먼저 걱정됨.", axis: "F" },
+    ]
+  },
+  {
+    text: "📋 새 프로젝트를 시작할 때 나는?",
+    options: [
+      { text: "ERD, 플로우차트, 설계 문서부터 완성.", axis: "J" },
+      { text: "일단 폴더 구조 만들고 코드 먼저 짬.", axis: "P" },
+      { text: "팀원들이랑 킥오프 미팅 먼저.", axis: "E" },
+      { text: "요구사항 혼자 꼼꼼히 읽고 분석함.", axis: "I" },
+    ]
+  },
+  {
+    text: "💬 코드리뷰에서 내 코드에 지적이 들어왔다. 나는?",
+    options: [
+      { text: "이유를 논리적으로 설명하고 반박한다.", axis: "T" },
+      { text: "일단 수용하고 나중에 고민한다.", axis: "F" },
+      { text: "바로 수정한다. 빠를수록 좋음.", axis: "P" },
+      { text: "관련 레퍼런스 찾아서 근거 있게 토론.", axis: "J" },
+    ]
+  },
+  {
+    text: "☕ 오전 10시, 오늘 하루 업무를 어떻게 시작하나요?",
+    options: [
+      { text: "TODO 리스트 정리하고 우선순위 정함.", axis: "J" },
+      { text: "그냥 뭔가 눈에 띄는 것부터 함.", axis: "P" },
+      { text: "커피 마시며 팀원들 근황 파악 먼저.", axis: "E" },
+      { text: "어제 퇴근 전 마지막 작업부터 이어감.", axis: "I" },
+    ]
+  },
+  {
+    text: "🌙 오늘 야근을 해야 할 것 같다. 나의 반응은?",
+    options: [
+      { text: "왜 야근하게 됐는지 원인 분석부터.", axis: "T" },
+      { text: "야근 있다고 가족/친구한테 먼저 연락.", axis: "F" },
+      { text: "음악 틀고 혼자 집중 모드.", axis: "I" },
+      { text: "팀원들이랑 치킨 시켜서 같이 버팀.", axis: "E" },
+    ]
+  },
+  {
+    text: "🤔 이해 안 가는 레거시 코드를 만났다. 나는?",
+    options: [
+      { text: "전체 흐름 파악할 때까지 혼자 파고든다.", axis: "I" },
+      { text: "원작자(or 팀원)한테 바로 물어본다.", axis: "E" },
+      { text: "리팩토링 계획부터 세운다.", axis: "J" },
+      { text: "일단 내가 필요한 부분만 파악하고 넘어감.", axis: "P" },
+    ]
+  },
+  {
+    text: "🚀 기능 구현 완료! 배포 전 마지막으로 뭘 하나요?",
+    options: [
+      { text: "테스트 코드 한 번 더 돌려봄.", axis: "T" },
+      { text: "동료한테 한 번만 봐달라고 부탁.", axis: "F" },
+      { text: "체크리스트 보며 꼼꼼하게 확인.", axis: "J" },
+      { text: "됐으면 된 거지. 바로 배포.", axis: "P" },
+    ]
+  },
+  {
+    text: "📣 팀 회의에서 내 역할은?",
+    options: [
+      { text: "적극적으로 의견 내고 토론 주도.", axis: "E" },
+      { text: "듣다가 핵심 포인트에서만 발언.", axis: "I" },
+      { text: "논리적인 근거로 방향 제시.", axis: "T" },
+      { text: "팀 분위기 보면서 중재자 역할.", axis: "F" },
+    ]
+  },
+  {
+    text: "🎯 마감이 이틀 남았는데 기능 하나가 덜 됐다. 나는?",
+    options: [
+      { text: "남은 시간 역산해서 정밀한 계획 세움.", axis: "J" },
+      { text: "일단 될 것 같은 것부터 빠르게 밀어붙임.", axis: "P" },
+      { text: "가장 중요한 게 뭔지 분석 후 선택과 집중.", axis: "T" },
+      { text: "팀원들이랑 현황 공유하고 도움 요청.", axis: "F" },
+    ]
+  },
+  {
+    text: "🎉 프로젝트 마무리! 회고 시간에 나는?",
+    options: [
+      { text: "기술적으로 뭘 배웠는지 중심으로 이야기.", axis: "T" },
+      { text: "팀원들이 힘들진 않았는지가 더 신경 쓰임.", axis: "F" },
+      { text: "다음엔 이렇게 하자! 계획 먼저 제안.", axis: "J" },
+      { text: "그냥 끝난 게 좋음. 회고는 간단히.", axis: "P" },
+    ]
+  },
+];
+
+const results = {
+  "ETJF": { emoji:"⚡", name:"스프린트 리더", desc:"팀을 이끄는 에너지 넘치는 개발자. 회의에서 가장 많이 말하고 마감 전날 가장 많이 일함. 당신이 있으면 팀이 산다.", traits:["리더십","추진력","팀플레이","의사결정"] },
+  "ETJT": { emoji:"🏛️", name:"아키텍처 리더", desc:"설계와 방향 제시에 탁월. 기술적 근거로 팀을 설득하고 체계적인 개발 문화를 만드는 타입.", traits:["체계적","논리적","설계력","리더십"] },
+  "ETPF": { emoji:"🔥", name:"에너자이저 해커", desc:"아이디어가 넘치고 일단 시작하는 타입. 완벽하진 않지만 빠름. 팀 분위기 메이커.", traits:["추진력","적응력","팀워크","창의성"] },
+  "ETPT": { emoji:"⚔️", name:"풀스택 전사", desc:"뭐든 일단 해보고 안 되면 방법 찾는 타입. 기술 스택 가리지 않고 돌진.", traits:["다재다능","추진력","문제해결","속도"] },
+  "EIJF": { emoji:"🌟", name:"팀 에이스", desc:"사람들과 잘 어울리지만 깊은 집중도 가능. 코드리뷰 해주는 걸 즐기는 팀의 버팀목.", traits:["공감력","집중력","멘토링","균형감"] },
+  "EIJT": { emoji:"🎯", name:"시니어 멘토", desc:"경험에서 나오는 통찰로 팀을 이끔. 말은 많지 않지만 발언 하나하나에 무게감.", traits:["통찰력","논리","멘토링","신중함"] },
+  "EIPF": { emoji:"🎪", name:"오픈소스 탐험가", desc:"새로운 기술에 항상 관심. PR 올리는 걸 즐기고 커뮤니티 활동 활발.", traits:["호기심","개방성","커뮤니티","적응력"] },
+  "EIPT": { emoji:"🛸", name:"기술 탐험가", desc:"새 기술 보면 무조건 써봐야 직성이 풀림. 사이드 프로젝트가 10개 이상.", traits:["탐구심","실험정신","다양성","속도"] },
+  "ITJF": { emoji:"🏰", name:"견고한 설계자", desc:"혼자 깊게 생각하고 완벽한 설계를 추구. 문서화도 빠짐없이 하는 신뢰의 아이콘.", traits:["꼼꼼함","설계력","신뢰성","문서화"] },
+  "ITJT": { emoji:"🔭", name:"알고리즘 마스터", desc:"코드의 효율과 정확성에 집착. 복잡한 문제일수록 눈이 빛남.", traits:["논리력","정밀성","집중력","최적화"] },
+  "ITPF": { emoji:"🌙", name:"야간 개발자", desc:"밤에 집중력 폭발. 혼자 조용히 좋은 코드 만들다가 아침에 PR 올림.", traits:["집중력","창의성","독립성","꾸준함"] },
+  "ITPT": { emoji:"⚙️", name:"퍼포먼스 해커", desc:"성능 최적화에 미침. 0.1ms도 못 참음. 프로파일러가 친구.", traits:["최적화","집중력","분석력","실험정신"] },
+  "IIJF": { emoji:"🌿", name:"조용한 장인", desc:"말은 없지만 코드 품질은 팀 최고. 묵묵히 기술 부채 갚는 팀의 숨은 MVP.", traits:["품질","집중","꼼꼼함","장인정신"] },
+  "IIJT": { emoji:"🔬", name:"보안 전문가", desc:"모든 코드에서 취약점을 찾아냄. 보안 없는 배포는 있을 수 없음.", traits:["보안","논리","꼼꼼함","비판적사고"] },
+  "IIPF": { emoji:"☁️", name:"인프라 철학자", desc:"혼자 인프라 다 들고 있는 조용한 강자. 쿠버네티스가 친구.", traits:["인프라","독립성","깊이","시스템사고"] },
+  "IIPT": { emoji:"🎭", name:"자유영혼 해커", desc:"규칙 없이 자유롭게 코딩. 결과물은 항상 신선하고 예상 못 한 방향.", traits:["창의성","자유","독특함","즉흥성"] },
+};
+
+let current = 0;
+let answers = [];
+let scores = { E:0, I:0, T:0, F:0, J:0, P:0 };
+
+function renderQuestion() {
+  const q = questions[current];
+  document.getElementById('q-progress').textContent = `Q${current+1} / ${questions.length}`;
+  document.getElementById('progress-fill').style.width = `${((current+1)/questions.length)*100}%`;
+  document.getElementById('q-text').textContent = q.text;
+
+  const optionsEl = document.getElementById('q-options');
+  const keys = ['A','B','C','D'];
+  optionsEl.innerHTML = q.options.map((o, i) => `
+    <div class="q-option ${answers[current]===i?'selected':''}" onclick="selectOption(${i})">
+      <span class="opt-key">${keys[i]}</span>
+      <span>${o.text}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('btn-prev').style.display = current > 0 ? 'inline-block' : 'none';
+  document.getElementById('btn-next').disabled = answers[current] === undefined;
+  document.getElementById('btn-next').textContent = current === questions.length-1 ? '결과 보기 →' : '다음 →';
+}
+
+function selectOption(i) {
+  answers[current] = i;
+  document.querySelectorAll('.q-option').forEach((el, idx) => {
+    el.classList.toggle('selected', idx === i);
+  });
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextQ() {
+  if (answers[current] === undefined) return;
+  if (current < questions.length - 1) {
+    current++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function prevQ() {
+  if (current > 0) { current--; renderQuestion(); }
+}
+
+function showResult() {
+  scores = { E:0, I:0, T:0, F:0, J:0, P:0 };
+  answers.forEach((a, qi) => {
+    const axis = questions[qi].options[a].axis;
+    scores[axis]++;
+  });
+
+  const E_I = scores.E >= scores.I ? 'E' : 'I';
+  const T_F = scores.T >= scores.F ? 'T' : 'F';
+  const J_P = scores.J >= scores.P ? 'J' : 'P';
+  const key = E_I + (T_F==='T'?'I':'I') + J_P + T_F;
+
+  // pick result
+  const rKeys = Object.keys(results);
+  const rKey = rKeys.find(k =>
+    k[0]===E_I && k[2]===J_P && k[3]===T_F
+  ) || rKeys[Math.floor(Math.random()*rKeys.length)];
+
+  const r = results[rKey];
+
+  document.getElementById('result-emoji').textContent = r.emoji;
+  document.getElementById('result-type').textContent = rKey;
+  document.getElementById('result-name').textContent = r.name;
+  document.getElementById('result-desc').textContent = r.desc;
+  document.getElementById('trait-list').innerHTML = r.traits.map(t=>`<span class="trait-tag">#${t}</span>`).join('');
+
+  document.getElementById('quiz-container').style.display = 'none';
+  const rs = document.getElementById('result-section');
+  rs.style.display = 'block';
+  setTimeout(() => rs.querySelector('.reveal').classList.add('visible'), 50);
+  rs.scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetQuiz() {
+  current = 0; answers = [];
+  scores = { E:0, I:0, T:0, F:0, J:0, P:0 };
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('quiz-container').style.display = 'block';
+  renderQuestion();
+  document.getElementById('test-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function shareResult() {
+  const type = document.getElementById('result-type').textContent;
+  const name = document.getElementById('result-name').textContent;
+  const text = `나의 개발 MBTI는 ${type} - ${name}! DevMBTI에서 테스트해보세요 🚀`;
+  if (navigator.share) {
+    navigator.share({ title: 'DevMBTI', text });
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+    alert('결과가 클립보드에 복사됐어요! 공유해보세요 🎉');
+  }
+}
+
+// ── AUTH ──
+function switchTab(tab) {
+  document.getElementById('form-login').style.display = tab==='login'?'block':'none';
+  document.getElementById('form-signup').style.display = tab==='signup'?'block':'none';
+  document.getElementById('tab-login').classList.toggle('active', tab==='login');
+  document.getElementById('tab-signup').classList.toggle('active', tab==='signup');
+}
+function fakeLogin() { alert('🔐 로그인 기능은 백엔드 연동 후 활성화됩니다!'); }
+function fakeSignup() { alert('✅ 회원가입 기능은 백엔드 연동 후 활성화됩니다!'); }
+
+// ── SCROLL REVEAL ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── INIT ──
+renderQuestion();
+</script>
+</body>
+</html>
